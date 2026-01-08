@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 음보 학습</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 900px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .stage-selector {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .stage-btn {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            color: white;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .stage-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .stage-btn.active {
+            background: rgba(255, 255, 255, 0.4);
+            border-color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .content-area {
+            min-height: 400px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 30px;
+        }
+
+        .metronome-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .beat-indicator {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            transition: all 0.2s;
+        }
+
+        .beat-indicator.active {
+            background: radial-gradient(circle, #ffeb3b, #ff9800);
+            transform: scale(1.3);
+            box-shadow: 0 0 40px rgba(255, 193, 7, 0.8);
+            border-color: #ffeb3b;
+        }
+
+        .sentence-display {
+            font-size: 2.2em;
+            text-align: center;
+            margin: 40px 0;
+            line-height: 2;
+            letter-spacing: 1px;
+        }
+
+        .phrase-group {
+            display: inline-block;
+            padding: 8px 15px;
+            margin: 5px 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .phrase-group.highlight {
+            background: rgba(255, 235, 59, 0.3);
+            border-color: #ffeb3b;
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(255, 235, 59, 0.4);
+        }
+
+        .space-divider {
+            display: inline-block;
+            width: 30px;
+            height: 40px;
+            margin: 0 5px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            cursor: pointer;
+            vertical-align: middle;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .space-divider:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .space-divider.divided {
+            background: rgba(255, 235, 59, 0.3);
+            border: 2px solid #ffeb3b;
+        }
+
+        .space-divider.divided::after {
+            content: '|';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ffeb3b;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .word-group {
+            display: inline-block;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin: 2px;
+            transition: all 0.3s;
+        }
+
+        .word-group.highlight {
+            background: rgba(255, 235, 59, 0.3);
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(255, 235, 59, 0.4);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #00c6fb 0%, #005bea 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 91, 234, 0.3);
+        }
+
+        .control-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 91, 234, 0.4);
+        }
+
+        .control-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .control-btn.stop {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .space-btn {
+            width: 350px;
+            height: 100px;
+            font-size: 1.8em;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.1s;
+            box-shadow: 0 5px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        .space-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 3px 10px rgba(245, 87, 108, 0.3);
+        }
+
+        .space-btn.pressed {
+            background: linear-gradient(135deg, #ffeb3b 0%, #ff9800 100%);
+        }
+
+        .feedback {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.3em;
+            min-height: 40px;
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        /* 3단계 개선된 스타일 */
+        .rhythm-timeline {
+            position: relative;
+            height: 120px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            margin: 30px 0;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 20px;
+        }
+
+        .timeline-track {
+            position: relative;
+            height: 80px;
+            min-width: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .rhythm-dot {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #ffeb3b, #ff9800);
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(255, 193, 7, 0.6);
+            top: 50%;
+            transform: translateY(-50%);
+            animation: pulse 0.5s ease-out;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: translateY(-50%) scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: translateY(-50%) scale(1.3);
+            }
+            100% {
+                transform: translateY(-50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .current-position {
+            position: absolute;
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, #4caf50, transparent);
+            pointer-events: none;
+        }
+
+        .phrase-option-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            color: white;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+
+        .phrase-option-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .phrase-option-btn.active {
+            background: rgba(255, 235, 59, 0.3);
+            border-color: #ffeb3b;
+        }
+
+        .phrase-options {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        /* 👇👇👇 추가된 CSS 👇👇👇 */
+        /* 스페이스바 버튼과 이전/다음 버튼을 한 줄에 배치하기 위한 스타일 */
+        .main-controls {
+            display: flex;
+            align-items: center; /* 버튼들을 세로 중앙 정렬 */
+            justify-content: center; /* 버튼들을 가로 중앙 정렬 */
+            gap: 20px; /* 버튼 사이 간격 */
+            margin-top: 30px;
+            flex-wrap: wrap; /* 화면 작을 때 줄바꿈 */
+        }
+
+        /* 이전/다음 버튼 크기 조정 */
+        .nav-btn {
+            padding: 15px 20px; /* 스페이스바 버튼보다 작게 */
+            font-size: 1.1em;
+            flex-shrink: 0; /* 버튼 크기 줄어들지 않게 */
+        }
+
+        /* 스페이스바 버튼은 원래 크기 유지 */
+        .space-btn {
+            margin: 0; /* 위아래 마진 제거 */
+            flex-grow: 1; /* 가능한 공간 차지 (선택사항) */
+            max-width: 350px; /* 최대 너비 제한 */
+        }
+        /* 👆👆👆 추가된 CSS 끝 👆👆👆 */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 한국어 음보 학습 🎵</h1>
+        
+        <div class="stage-selector">
+            <button class="stage-btn active" onclick="setStage(1)">1단계: 음보 듣기</button>
+            <button class="stage-btn" onclick="setStage(2)">2단계: 음보 나누기</button>
+            <button class="stage-btn" onclick="setStage(3)">3단계: 리듬 연습</button>
+        </div>
+
+        <div class="content-area" id="content">
+            </div>
+    </div>
+
+    <script>
+        // 오디오 컨텍스트 설정
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // 예시 문장들
+        const sentences = [
+            {
+                text: "나보기가 역겨워 가실 때에는",
+                variations: [
+                    {
+                        name: "3음보",
+                        phrases: ["나보기가", "역겨워", "가실 때에는"],
+                        rhythm: [4, 3, 5]
+                    },
+                    {
+                        name: "4음보",
+                        phrases: ["나보기가", "역겨워", "가실", "때에는"],
+                        rhythm: [4, 3, 2, 3]
+                    }
+                ]
+            },
+            {
+                text: "아리랑 아리랑 아라리요",
+                variations: [
+                    {
+                        name: "3음보",
+                        phrases: ["아리랑", "아리랑", "아라리요"],
+                        rhythm: [3, 3, 4]
+                    }
+                ]
+            },
+            {
+                text: "아리랑 고개로 넘어간다",
+                variations: [
+                    {
+                        name: "3음보",
+                        phrases: ["아리랑", "고개로", "넘어간다"],
+                        rhythm: [3, 3, 4]
+                    }
+                ]
+            },
+            {
+                text: "이몸이 죽고 죽어 일백번 고쳐죽어",
+                variations: [
+                    {
+                        name: "4음보",
+                        phrases: ["이몸이", "죽고 죽어", "일백번", "고쳐죽어"],
+                        rhythm: [3, 4, 3, 4]
+                    }
+                ]
+            },
+            {
+                text: "까마귀 노는 곳에 백로야 가지 마라",
+                variations: [
+                    {
+                        name: "4음보",
+                        phrases: ["까마귀", "노는 곳에", "백로야", "가지 마라"],
+                        rhythm: [3, 4, 3, 4]
+                    }
+                ]
+            },
+            {
+                text: "파란 하늘 흰 구름이 떠간다",
+                variations: [
+                    {
+                        name: "3음보",
+                        phrases: ["파란 하늘", "흰 구름이", "떠간다"],
+                        rhythm: [4, 4, 3]
+                    }
+                ]
+            },
+            {
+                text: "봄바람이 살랑살랑 불어온다",
+                variations: [
+                    {
+                        name: "3음보",
+                        phrases: ["봄바람이", "살랑살랑", "불어온다"],
+                        rhythm: [4, 4, 4]
+                    }
+                ]
+            }
+        ];
+        
+        // 전역 변수
+        let currentStage = 1;
+        let currentSentenceIndex = 0;
+        let currentVariationIndex = 0;
+        let isPlaying = false;
+        let intervalId = null;
+        let userPhrases = [];
+        let timelineStartTime = null;
+        let timelineInterval = null;
+        let isRecording = false;
+        let recordedDots = [];
+        
+        // 효과음 재생 함수
+        function playSound(frequency = 800, duration = 50, volume = 0.3) {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = frequency;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration / 1000);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration / 1000);
+        }
+        
+        // 음보 단위 효과음
+        function playPhraseSound(syllableCount) {
+            const baseFreq = 600;
+            const beatInterval = 60000 / 125 / 4;
+            
+            for (let i = 0; i < syllableCount; i++) {
+                setTimeout(() => {
+                    playSound(baseFreq + (i * 100), 80, 0.4);
+                }, i * beatInterval);
+            }
+        }
+        
+        // 현재 문장 정보 가져오기
+        function getCurrentSentence() {
+            const sentence = sentences[currentSentenceIndex];
+            if (sentence.variations) {
+                return {
+                    text: sentence.text,
+                    phrases: sentence.variations[currentVariationIndex].phrases,
+                    rhythm: sentence.variations[currentVariationIndex].rhythm,
+                    hasVariations: true,
+                    variationName: sentence.variations[currentVariationIndex].name
+                };
+            }
+            return {
+                text: sentence.text,
+                phrases: sentence.phrases,
+                rhythm: sentence.rhythm,
+                hasVariations: false
+            };
+        }
+        
+        // 단계 설정
+        function setStage(stage) {
+            currentStage = stage;
+            document.querySelectorAll('.stage-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.stage-btn')[stage - 1].classList.add('active');
+            
+            stopPlaying();
+            stopRecording();
+            renderStage();
+        }
+        
+        // 각 단계별 렌더링
+        function renderStage() {
+            const content = document.getElementById('content');
+            
+            switch(currentStage) {
+                case 1:
+                    renderStage1();
+                    break;
+                case 2:
+                    renderStage2();
+                    break;
+                case 3:
+                    renderStage3();
+                    break;
+            }
+        }
+        
+        // 1단계: 음보 듣기
+        function renderStage1() {
+            const content = document.getElementById('content');
+            const sentence = getCurrentSentence();
+            
+            let variationButtons = '';
+            if (sentences[currentSentenceIndex].variations && sentences[currentSentenceIndex].variations.length > 1) {
+                variationButtons = `
+                    <div class="phrase-options">
+                        ${sentences[currentSentenceIndex].variations.map((v, i) => 
+                            `<button class="phrase-option-btn ${i === currentVariationIndex ? 'active' : ''}" 
+                                onclick="selectVariation(${i})">${v.name}로 보기</button>`
+                        ).join('')}
+                    </div>
+                `;
+            }
+            
+            content.innerHTML = `
+                <div class="instructions">
+                    🎶 문장이 음보 단위로 나누어져 있습니다.<br>
+                    각 음보마다 리듬을 느끼며 들어보세요.
+                </div>
+                ${variationButtons}
+                <div class="metronome-container" id="beat-indicators">
+                    ${sentence.phrases.map((_, i) => 
+                        `<div class="beat-indicator" data-beat="${i}">${i + 1}</div>`
+                    ).join('')}
+                </div>
+                <div class="sentence-display" id="sentence"></div>
+                <div class="controls">
+                    <button class="control-btn" onclick="togglePlay1()">
+                        <span id="play-btn">▶ 재생</span>
+                    </button>
+                    <button class="control-btn" onclick="playOnce()">한 번만 듣기</button>
+                    <button class="control-btn" onclick="prevSentence()">← 이전 문장</button>
+                    <button class="control-btn" onclick="nextSentence()">다음 문장 →</button>
+                </div>
+            `;
+            
+            displayPhrases(sentence);
+        }
+        
+        // 2단계: 음보 나누기
+        function renderStage2() {
+            const content = document.getElementById('content');
+            const sentence = sentences[currentSentenceIndex];
+            
+            content.innerHTML = `
+                <div class="instructions">
+                    ✏️ 문장을 음보 단위로 나누어 보세요!<br>
+                    띄어쓰기 부분을 클릭하여 음보를 구분하세요.
+                </div>
+                <div class="metronome-container" id="beat-indicators"></div>
+                <div class="sentence-display" id="sentence"></div>
+                <div class="controls">
+                    <button class="control-btn" onclick="resetDivision()">초기화</button>
+                    <button class="control-btn" onclick="playUserDivision()">내 음보 재생</button>
+                    <button class="control-btn" onclick="prevSentence()">← 이전 문장</button>
+                    <button class="control-btn" onclick="nextSentence()">다음 문장 →</button>
+                </div>
+                <div class="feedback" id="feedback"></div>
+            `;
+            
+            displayInteractiveSentence(sentence);
+        }
+        
+        // 3단계: 리듬 연습
+        function renderStage3() {
+            const content = document.getElementById('content');
+            const sentence = getCurrentSentence();
+            
+            let variationButtons = '';
+            if (sentences[currentSentenceIndex].variations && sentences[currentSentenceIndex].variations.length > 1) {
+                variationButtons = `
+                    <div class="phrase-options">
+                        ${sentences[currentSentenceIndex].variations.map((v, i) => 
+                            `<button class="phrase-option-btn ${i === currentVariationIndex ? 'active' : ''}" 
+                                onclick="selectVariation(${i})">${v.name}로 보기</button>`
+                        ).join('')}
+                    </div>
+                `;
+            }
+            
+            // 👇👇👇 여기 HTML 구조를 수정했습니다! 👇👇👇
+            content.innerHTML = `
+                <div class="instructions">
+                    🎹 자유롭게 리듬을 만들어보세요!<br>
+                    스페이스바를 누르면 박자가 기록됩니다.
+                </div>
+                ${variationButtons}
+                <div class="sentence-display" id="sentence"></div>
+                
+                <div class="rhythm-timeline" id="rhythmTimeline">
+                    <div class="timeline-track" id="timelineTrack">
+                        <div class="current-position" id="currentPosition" style="display:none;"></div>
+                    </div>
+                </div>
+                
+                <div class="main-controls">
+                    <button class="control-btn nav-btn" onclick="prevSentence()">← 이전</button>
+                    <button class="space-btn" id="tapBtn">🎵 스페이스바!</button>
+                    <button class="control-btn nav-btn" onclick="nextSentence()">다음 →</button>
+                </div>
+                
+                <div class="controls">
+                    <button class="control-btn" onclick="startRecording()">📹 녹음 시작</button>
+                    <button class="control-btn stop" onclick="stopRecording()">⏹ 녹음 중지</button>
+                    <button class="control-btn" onclick="playbackRecording()">▶ 재생하기</button>
+                    <button class="control-btn" onclick="clearRecording()">🗑 초기화</button>
+                    <button class="control-btn" onclick="playExample3()">🎵 예시 듣기</button>
+                </div>
+                
+                <div class="feedback" id="feedback">스페이스바를 눌러 리듬을 만들어보세요!</div>
+            `;
+            
+            displayPhrases(sentence);
+            setupRhythmInput3();
+        }
+        
+        // 음보 변형 선택
+        function selectVariation(index) {
+            currentVariationIndex = index;
+            renderStage();
+        }
+        
+        // 음보 단위로 문장 표시
+        function displayPhrases(sentence) {
+            const container = document.getElementById('sentence');
+            container.innerHTML = sentence.phrases.map((phrase, i) => 
+                `<span class="phrase-group" data-phrase="${i}">${phrase}</span>`
+            ).join(' ');
+        }
+        
+        // 인터랙티브 문장 표시
+        function displayInteractiveSentence(sentence) {
+            const container = document.getElementById('sentence');
+            const words = sentence.text.split(' ');
+            
+            let html = '';
+            for (let i = 0; i < words.length; i++) {
+                html += `<span class="word-group" data-word="${i}">${words[i]}</span>`;
+                if (i < words.length - 1) {
+                    html += `<span class="space-divider" data-space="${i}" onclick="toggleSpace(${i})"></span>`;
+                }
+            }
+            
+            container.innerHTML = html;
+            updateUserPhrases();
+        }
+        
+        // 띄어쓰기 토글
+        function toggleSpace(index) {
+            const space = document.querySelector(`[data-space="${index}"]`);
+            if (space) {
+                space.classList.toggle('divided');
+                updateUserPhrases();
+            }
+        }
+        
+        // 사용자 음보 업데이트
+        function updateUserPhrases() {
+            const sentence = sentences[currentSentenceIndex];
+            const words = sentence.text.split(' ');
+            const dividers = document.querySelectorAll('.space-divider');
+            
+            userPhrases = [];
+            let currentPhrase = [words[0]];
+            
+            for (let i = 0; i < dividers.length; i++) {
+                if (dividers[i].classList.contains('divided')) {
+                    userPhrases.push(currentPhrase.join(' '));
+                    currentPhrase = [words[i + 1]];
+                } else {
+                    currentPhrase.push(words[i + 1]);
+                }
+            }
+            userPhrases.push(currentPhrase.join(' '));
+            
+            const beatContainer = document.getElementById('beat-indicators');
+            if (beatContainer) { // beatContainer가 있는지 확인
+                beatContainer.innerHTML = userPhrases.map((_, i) => 
+                    `<div class="beat-indicator" data-beat="${i}">${i + 1}</div>`
+                ).join('');
+            }
+        }
+        
+        // 구분 초기화
+        function resetDivision() {
+            document.querySelectorAll('.space-divider').forEach(d => d.classList.remove('divided'));
+            updateUserPhrases();
+        }
+        
+        // 사용자 음보 재생
+        function playUserDivision() {
+            stopPlaying();
+            isPlaying = true;
+            
+            const beatIndicators = document.querySelectorAll('.beat-indicator');
+            let currentPhraseIndex = 0;
+            
+            function playNextPhrase() {
+                if (currentPhraseIndex >= userPhrases.length) {
+                    stopPlaying();
+                    const feedback = document.getElementById('feedback');
+                    if (feedback) {
+                        feedback.innerHTML = `✨ 잘했어요! ${userPhrases.length}개의 음보로 나누었네요!`;
+                        feedback.style.color = '#4caf50';
+                    }
+                    return;
+                }
+                
+                document.querySelectorAll('.word-group').forEach(w => w.classList.remove('highlight'));
+                beatIndicators.forEach(b => b.classList.remove('active'));
+                
+                const words = sentences[currentSentenceIndex].text.split(' ');
+                let phraseStartIndex = 0;
+                
+                for (let p = 0; p < currentPhraseIndex; p++) {
+                    const wordsInPhrase = userPhrases[p].split(' ').length;
+                    phraseStartIndex += wordsInPhrase;
+                }
+                
+                const currentPhraseWords = userPhrases[currentPhraseIndex].split(' ');
+                
+                for (let i = 0; i < currentPhraseWords.length; i++) {
+                    const wordElement = document.querySelector(`[data-word="${phraseStartIndex + i}"]`);
+                    if (wordElement) wordElement.classList.add('highlight');
+                }
+                
+                if (beatIndicators[currentPhraseIndex]) {
+                    beatIndicators[currentPhraseIndex].classList.add('active');
+                }
+                
+                const syllableCount = userPhrases[currentPhraseIndex].replace(/\s/g, '').length;
+                playPhraseSound(syllableCount);
+                
+                currentPhraseIndex++;
+                
+                const phraseTime = (syllableCount * 60000 / 125 / 4) + 200;
+                setTimeout(playNextPhrase, phraseTime + 400); 
+            }
+            
+            playNextPhrase(); 
+        }
+        
+        // 1단계 재생
+        function togglePlay1() {
+            if (isPlaying) {
+                stopPlaying();
+            } else {
+                startPlaying1();
+            }
+        }
+        
+        function startPlaying1() {
+            isPlaying = true;
+            const playBtn = document.getElementById('play-btn');
+            if (playBtn) playBtn.textContent = '⏸ 정지';
+            
+            const sentence = getCurrentSentence();
+            let phraseIndex = 0;
+            
+            function playPhrase() {
+                if (!isPlaying) return;
+                
+                document.querySelectorAll('.phrase-group').forEach(p => p.classList.remove('highlight'));
+                document.querySelectorAll('.beat-indicator').forEach(b => b.classList.remove('active'));
+                
+                if (phraseIndex >= sentence.phrases.length) {
+                    setTimeout(() => {
+                        if (isPlaying) {
+                            phraseIndex = 0;
+                            playPhrase();
+                        }
+                    }, 1000);
+                    return;
+                }
+                
+                const currentPhrase = document.querySelector(`[data-phrase="${phraseIndex}"]`);
+                const currentBeat = document.querySelector(`[data-beat="${phraseIndex}"]`);
+                
+                if (currentPhrase) currentPhrase.classList.add('highlight');
+                if (currentBeat) currentBeat.classList.add('active');
+                
+                const syllableCount = sentence.phrases[phraseIndex].replace(/\s/g, '').length;
+                playPhraseSound(syllableCount);
+                
+                phraseIndex++;
+                
+                const phraseTime = (syllableCount * 60000 / 125 / 4) + 200;
+                setTimeout(playPhrase, phraseTime + 400);
+            }
+            
+            playPhrase();
+        }
+        
+        // 한 번만 재생
+        function playOnce() {
+            stopPlaying();
+            
+            const sentence = getCurrentSentence();
+            let phraseIndex = 0;
+            
+            function playPhrase() {
+                if (phraseIndex >= sentence.phrases.length) {
+                    return;
+                }
+                
+                document.querySelectorAll('.phrase-group').forEach(p => p.classList.remove('highlight'));
+                document.querySelectorAll('.beat-indicator').forEach(b => b.classList.remove('active'));
+                
+                const currentPhrase = document.querySelector(`[data-phrase="${phraseIndex}"]`);
+                const currentBeat = document.querySelector(`[data-beat="${phraseIndex}"]`);
+                
+                if (currentPhrase) currentPhrase.classList.add('highlight');
+                if (currentBeat) currentBeat.classList.add('active');
+                
+                const syllableCount = sentence.phrases[phraseIndex].replace(/\s/g, '').length;
+                playPhraseSound(syllableCount);
+                
+                phraseIndex++;
+                
+                const phraseTime = (syllableCount * 60000 / 125 / 4) + 200;
+                setTimeout(playPhrase, phraseTime + 400);
+            }
+            
+            playPhrase();
+        }
+        
+        // 재생 정지
+        function stopPlaying() {
+            isPlaying = false;
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+            }
+            const playBtn = document.getElementById('play-btn');
+            if (playBtn) playBtn.textContent = '▶ 재생';
+            
+            document.querySelectorAll('.phrase-group').forEach(p => p.classList.remove('highlight'));
+            document.querySelectorAll('.beat-indicator').forEach(b => b.classList.remove('active'));
+        }
+        
+        // 3단계 리듬 입력 설정
+        function setupRhythmInput3() {
+            const tapBtn = document.getElementById('tapBtn');
+             if (!tapBtn) return; // tapBtn이 없으면 함수 종료
+
+            // 이벤트 리스너 제거 (중복 방지)
+            document.removeEventListener('keydown', handleSpaceDown);
+            document.removeEventListener('keyup', handleSpaceUp);
+            
+            // 스페이스바 이벤트
+            document.addEventListener('keydown', handleSpaceDown);
+            document.addEventListener('keyup', handleSpaceUp);
+            
+            // 버튼 이벤트 (이전 리스너 제거 추가)
+            const newTapBtn = tapBtn.cloneNode(true); // 버튼 복제하여 기존 리스너 제거
+            tapBtn.parentNode.replaceChild(newTapBtn, tapBtn);
+
+            newTapBtn.addEventListener('mousedown', handleTapDown);
+            newTapBtn.addEventListener('mouseup', handleTapUp);
+            newTapBtn.addEventListener('touchstart', handleTapDown);
+            newTapBtn.addEventListener('touchend', handleTapUp);
+        }
+        
+        function handleSpaceDown(e) {
+            if (e.code === 'Space' && currentStage === 3) {
+                e.preventDefault();
+                handleTapDown();
+            }
+        }
+        
+        function handleSpaceUp(e) {
+            if (e.code === 'Space' && currentStage === 3) {
+                e.preventDefault();
+                handleTapUp();
+            }
+        }
+        
+        function handleTapDown() {
+            const tapBtn = document.getElementById('tapBtn');
+            if (tapBtn) {
+                tapBtn.classList.add('pressed');
+                tapBtn.textContent = '🎵 누르는 중...';
+            }
+            
+            if (isRecording && timelineStartTime !== null) { // timelineStartTime 확인 추가
+                const currentTime = Date.now() - timelineStartTime;
+                addDotToTimeline(currentTime);
+                playSound(800, 50, 0.5);
+            }
+        }
+        
+        function handleTapUp() {
+            const tapBtn = document.getElementById('tapBtn');
+            if (tapBtn) {
+                tapBtn.classList.remove('pressed');
+                 // 버튼 텍스트 수정
+                 tapBtn.textContent = '🎵 스페이스바!';
+            }
+        }
+        
+        // 타임라인에 점 추가
+        function addDotToTimeline(time) {
+            const timeline = document.getElementById('timelineTrack');
+            if (!timeline) return;
+            
+            const dot = document.createElement('div');
+            dot.className = 'rhythm-dot';
+            // 속도 조절 (0.17)
+            dot.style.left = `${time * 0.17}px`;
+
+            timeline.appendChild(dot);
+            recordedDots.push(time);
+            
+            const container = document.getElementById('rhythmTimeline');
+            if (container) { // container 확인 추가
+              container.scrollLeft = container.scrollWidth;
+            }
+        }
+        
+        // 녹음 시작
+        function startRecording() {
+            stopRecording();
+            isRecording = true;
+            timelineStartTime = Date.now();
+            recordedDots = [];
+            
+            const timeline = document.getElementById('timelineTrack');
+            if (timeline) { // timeline 확인 추가
+                timeline.innerHTML = '<div class="current-position" id="currentPosition"></div>';
+            } else {
+                console.error("Timeline track not found!");
+                return;
+            }
+
+            const currentPos = document.getElementById('currentPosition');
+            if (!currentPos) {
+                 console.error("Current position element not found!");
+                 return;
+            }
+            currentPos.style.display = 'block';
+            currentPos.style.left = '0px';
+
+            timelineInterval = setInterval(() => {
+                const elapsed = Date.now() - timelineStartTime;
+                // 속도 조절 (0.17)
+                if (currentPos) { // currentPos 확인 추가
+                    currentPos.style.left = `${elapsed * 0.17}px`;
+                }
+                
+                const container = document.getElementById('rhythmTimeline');
+                 if (container && currentPos) { // container, currentPos 확인 추가
+                     container.scrollLeft = currentPos.offsetLeft - container.offsetWidth / 2;
+                 }
+            }, 50);
+
+            const feedback = document.getElementById('feedback');
+            if (feedback) { // feedback 확인 추가
+                feedback.textContent = '🔴 녹음 중... 스페이스바를 눌러 박자를 입력하세요!';
+                feedback.style.color = '#ff6b6b';
+            }
+        }
+        
+        // 녹음 중지
+        function stopRecording() {
+            isRecording = false;
+            
+            if (timelineInterval) {
+                clearInterval(timelineInterval);
+                timelineInterval = null;
+            }
+            
+            const currentPos = document.getElementById('currentPosition');
+            if (currentPos) {
+                currentPos.style.display = 'none';
+            }
+            
+            if (recordedDots.length > 0) {
+                const feedback = document.getElementById('feedback');
+                if (feedback) { // feedback 확인 추가
+                    feedback.textContent = `✅ 녹음 완료! ${recordedDots.length}개의 박자를 기록했습니다.`;
+                    feedback.style.color = '#4caf50';
+                }
+            }
+        }
+        
+        // 녹음 재생
+        function playbackRecording() {
+            const feedback = document.getElementById('feedback');
+            if (recordedDots.length === 0) {
+                if (feedback) { // feedback 확인 추가
+                    feedback.textContent = '재생할 녹음이 없습니다. 먼저 녹음을 시작하세요!';
+                    feedback.style.color = '#ff6b6b';
+                }
+                return;
+            }
+            
+            if (feedback) { // feedback 확인 추가
+                feedback.textContent = '🎵 재생 중...';
+                feedback.style.color = '#4caf50';
+            }
+            
+            recordedDots.forEach((time, index) => {
+                setTimeout(() => {
+                    playSound(600 + (index % 4) * 100, 80, 0.4);
+                    
+                    const dots = document.querySelectorAll('.rhythm-dot');
+                    if (dots[index]) {
+                        dots[index].style.transform = 'translateY(-50%) scale(1.5)';
+                        dots[index].style.boxShadow = '0 0 30px rgba(255, 193, 7, 1)';
+                        
+                        setTimeout(() => {
+                             if(dots[index]) { // dot이 여전히 존재하는지 확인
+                                dots[index].style.transform = 'translateY(-50%) scale(1)';
+                                dots[index].style.boxShadow = '0 0 15px rgba(255, 193, 7, 0.6)';
+                             }
+                        }, 200);
+                    }
+                    
+                    if (index === recordedDots.length - 1) {
+                        setTimeout(() => {
+                             if (feedback) { // feedback 확인 추가
+                                feedback.textContent = '재생 완료!';
+                             }
+                        }, 500);
+                    }
+                }, time);
+            });
+        }
+        
+        // 녹음 초기화
+        function clearRecording() {
+            recordedDots = [];
+            const timeline = document.getElementById('timelineTrack');
+            if (timeline) {
+                timeline.innerHTML = '<div class="current-position" id="currentPosition" style="display:none;"></div>';
+            }
+            
+            const feedback = document.getElementById('feedback');
+            if (feedback) { // feedback 확인 추가
+                feedback.textContent = '초기화 완료! 다시 시작해보세요.';
+                feedback.style.color = 'white';
+            }
+        }
+        
+        // 3단계 예시 재생
+        function playExample3() {
+            const sentence = getCurrentSentence();
+            let phraseIndex = 0;
+            
+            const feedback = document.getElementById('feedback');
+             if (feedback) { // feedback 확인 추가
+                feedback.textContent = '🎵 예시를 들어보세요!';
+                feedback.style.color = '#ffeb3b';
+             }
+            
+            const timeline = document.getElementById('timelineTrack');
+            if (timeline) { // timeline 확인 추가
+                 timeline.innerHTML = '<div class="current-position" id="currentPosition" style="display:none;"></div>';
+            } else {
+                 console.error("Timeline track not found for example playback!");
+                 return;
+            }
+            
+            let totalTime = 0;
+            sentence.phrases.forEach((phrase, index) => {
+                const syllableCount = phrase.replace(/\s/g, '').length;
+                const beatInterval = 60000 / 125 / 4;
+                
+                for (let i = 0; i < syllableCount; i++) {
+                    const dot = document.createElement('div');
+                    dot.className = 'rhythm-dot';
+                    // 속도 조절 (0.17)
+                    dot.style.left = `${totalTime * 0.17}px`; 
+                    dot.style.opacity = '0.5';
+                    if (timeline) timeline.appendChild(dot); // timeline 확인 추가
+                    
+                    totalTime += beatInterval;
+                }
+                totalTime += 400;
+            });
+            
+            function playPhrase() {
+                if (phraseIndex >= sentence.phrases.length) {
+                    setTimeout(() => {
+                         if (feedback) { // feedback 확인 추가
+                             feedback.textContent = '예시 재생 완료! 이제 따라해보세요.';
+                         }
+                    }, 500);
+                    return;
+                }
+                
+                document.querySelectorAll('.phrase-group').forEach(p => p.classList.remove('highlight'));
+                const currentPhrase = document.querySelector(`[data-phrase="${phraseIndex}"]`);
+                if (currentPhrase) currentPhrase.classList.add('highlight');
+                
+                const syllableCount = sentence.phrases[phraseIndex].replace(/\s/g, '').length;
+                playPhraseSound(syllableCount);
+                
+                phraseIndex++;
+                
+                const phraseTime = (syllableCount * 60000 / 125 / 4) + 200;
+                setTimeout(playPhrase, phraseTime + 400);
+            }
+            
+            playPhrase();
+        }
+        
+        // 다음 문장
+        function nextSentence() {
+            currentSentenceIndex = (currentSentenceIndex + 1) % sentences.length;
+            currentVariationIndex = 0;
+            stopPlaying();
+            stopRecording();
+            renderStage();
+        }
+        
+        // 이전 문장
+        function prevSentence() {
+            currentSentenceIndex = (currentSentenceIndex - 1 + sentences.length) % sentences.length;
+            currentVariationIndex = 0;
+            stopPlaying();
+            stopRecording();
+            renderStage();
+        }
+        
+        // 초기 렌더링
+        renderStage();
+    </script>
+</body>
+</html>
