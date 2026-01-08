@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이차함수 학습 프로그램</title>
+    <link rel="stylesheet" href="31_style.css">
+    <!-- MathJax 추가 -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+</head>
+<body>
+    <div class="container">
+        <!-- 메인 화면 -->
+        <div id="main-screen" class="screen">
+            <h1>🎯 이차함수 완전제곱식 & 그래프 변환 학습</h1>
+            <p>이차함수를 완전제곱식으로 변환하고 그래프의 평행이동을 연습해보세요!</p>
+            
+            <div class="level-selection">
+                <h3>📚 레벨을 선택하세요:</h3>
+                <div class="level-buttons">
+                    <button id="start-level1-btn" class="btn level-btn">
+                        📖 Level 1<br>
+                        <small>$x^2 + bx + c$ 형태</small>
+                    </button>
+                    <button id="start-level2-btn" class="btn level-btn">
+                        🎓 Level 2<br>
+                        <small>$ax^2 + bx + c$ 형태</small>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 완전제곱식 변환 화면 -->
+        <div id="equation-screen" class="screen hidden">
+            <!-- 상단 컨트롤 버튼 -->
+            <div class="top-controls">
+                <button id="restart-equation-btn" class="btn secondary small">🔄 다시하기</button>
+            </div>
+            
+            <h2>📝 완전제곱식 형태로 변환</h2>
+            
+            <!-- 원래 이차함수 표시 -->
+            <div class="equation-display">
+                <h3>주어진 이차함수:</h3>
+                <div id="original-equation" class="equation">함수가 여기에 표시됩니다</div>
+            </div>
+
+            <!-- 완전제곱식 조립 영역 -->
+            <div class="completion-area">
+                <h3>완전제곱식 형태로 변환:</h3>
+                <div id="completion-display" class="equation-builder">
+                    <!-- 블럭들이 여기에 동적으로 추가됨 -->
+                </div>
+                
+                <!-- 블럭 선택 영역 -->
+                <div class="block-selector">
+                    <h4>블럭을 선택하여 완전제곱식 형태를 만드세요:</h4>
+                    <div class="block-row">
+                        <!-- 기본 블럭들 -->
+                        <button class="block-btn small" data-type="parenthesis" data-value="(">(</button>
+                        <button class="block-btn small" data-type="variable" data-value="x">$x$</button>
+                        <button class="block-btn small" data-type="operator" data-value="+">+</button>
+                        <button class="block-btn small" data-type="operator" data-value="-">-</button>
+                        <button class="block-btn small" data-type="parenthesis" data-value=")">)</button>
+                        <button class="block-btn small" data-type="power" data-value="²">²</button>
+                        
+                        <!-- 숫자 입력 영역 -->
+                        <div class="number-input-group">
+                            <input type="text" id="number-input" placeholder="숫자 입력" maxlength="10">
+                            <button id="add-number-btn" class="btn secondary small">추가</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="clear-btn" class="btn danger">🗑️ 지우기</button>
+                    <button id="check-answer-btn" class="btn primary">✅ 확인</button>
+                </div>
+            </div>
+
+            <!-- 피드백 영역 -->
+            <div id="feedback" class="feedback hidden"></div>
+        </div>
+
+        <!-- 그래프 변환 화면 -->
+        <div id="graph-screen" class="screen hidden">
+            <!-- 상단 컨트롤 버튼 -->
+            <div class="top-controls">
+                <button id="restart-graph-btn" class="btn secondary small">🔄 다시하기</button>
+            </div>
+            
+            <h2>📊 그래프 변환하기</h2>
+            
+            <!-- Level 2에서만 보이는 개형 선택 단계 -->
+            <div id="shape-selection-step" class="step-container hidden" style="display: none;">
+                <h3 id="shape-description">이 함수는 어느 개형일까요?</h3>
+                <div class="equation-reminder">
+                    원래 이차함수식: <span id="original-equation-display"></span>
+                </div>
+                <div class="shape-options">
+                    <button class="shape-btn" data-shape="down">
+                        <div class="parabola-icon down">∪</div>
+                        <span>아래로 볼록 (+$x^2$)</span>
+                    </button>
+                    <button class="shape-btn" data-shape="up">
+                        <div class="parabola-icon up">∩</div>
+                        <span>위로 볼록 (-$x^2$)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Level 2에서만 보이는 배수 입력 단계 -->
+            <div id="multiplier-step" class="step-container hidden" style="display: none;">
+                <h3 id="multiplier-question-title">🔢 $y = x^2$을 y축 방향으로 몇 배 해야 같은 개형이 나오나요?</h3>
+                <div class="multiplier-question">
+                    <div class="base-shape">
+                        <span id="base-shape-display">$y = x^2$</span>
+                        <span>에서</span>
+                    </div>
+                    <div class="multiplier-input">
+                        <input type="text" id="multiplier-input" placeholder="배수 입력 (양수)">
+                        <span>배 하면</span>
+                    </div>
+                    <div class="target-shape">
+                        <span id="target-shape-display">방정식이 여기에 표시됩니다</span>
+                        <span>과 같은 개형이 됩니다</span>
+                    </div>
+                </div>
+                <button id="check-multiplier-btn" class="btn primary">✅ 확인</button>
+            </div>
+
+            <!-- 평행이동 단계 -->
+            <div id="movement-step" class="step-container">
+                <h3 id="movement-step-title">📊 그래프 평행이동하기</h3>
+                
+                <div class="graph-container">
+                    <canvas id="graph-canvas" width="600" height="500"></canvas>
+                    
+                    <div class="graph-controls">
+                        <h3>그래프 이동하기</h3>
+                        <div class="movement-controls">
+                            <div class="direction-input">
+                                <button class="direction-btn" data-direction="up">↑</button>
+                                <input type="text" id="move-amount" placeholder="이동량 입력">
+                                <button class="direction-btn" data-direction="down">↓</button>
+                            </div>
+                            <div class="direction-input">
+                                <button class="direction-btn" data-direction="left">←</button>
+                                <span>이동량 입력 후 방향 선택</span>
+                                <button class="direction-btn" data-direction="right">→</button>
+                            </div>
+                        </div>
+                        
+                        <div class="control-buttons">
+                            <button id="reset-graph-btn" class="btn secondary">🔄 초기화</button>
+                            <button id="complete-movement-btn" class="btn primary">✅ 완료</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 목표 방정식 표시 -->
+                <div class="target-equation">
+                    <h4>목표: 이 그래프가 다음 식과 일치하도록 이동시키세요</h4>
+                    <div id="target-equation-display" class="equation"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 완료 화면 -->
+        <div id="success-screen" class="screen hidden">
+            <h2>🎉 축하합니다!</h2>
+            <p id="success-message">이차함수 변환을 완벽하게 마스터하셨습니다!</p>
+            <div class="success-animation">🌟</div>
+            <div class="level-buttons">
+                <button id="retry-same-level-btn" class="btn primary">🔄 같은 레벨 다시 도전</button>
+                <button id="try-other-level-btn" class="btn secondary">🚀 다른 레벨 도전하기</button>
+                <button id="back-to-main-btn" class="btn outline">🏠 메인으로 돌아가기</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="31_main.js"></script>
+</body>
+</html>
