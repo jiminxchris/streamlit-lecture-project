@@ -18,11 +18,6 @@ st.markdown("""
     
 )
 
-st.markdown(
-    'Made by Hyowon Wang | <a href="https://hyowonwang.netlify.app/" style="text-decoration: none;">🌐</a>',
-    unsafe_allow_html=True
-)
-
 def discover_pages(pages_dir: Path):
     """pages 디렉터리에서 .py 파일을 찾아 제목(파일명)과 첫 줄 설명을 추출합니다."""
     pages = []
@@ -107,4 +102,4 @@ if pages:
 else:
     st.info("`pages/` 디렉터리에 예제 페이지가 없습니다. `pages/` 폴더에 `.py` 파일을 추가하세요.")
 
-st.caption("프로젝트: streamlit-lecture-project-sample — 교육용 Streamlit 예제 모음")
+st.caption("프로젝트: streamlit-lecture-project — 교육용 Streamlit 예제 모음")
